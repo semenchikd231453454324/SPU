@@ -1,0 +1,7 @@
+push 70
+push 30
+push 2
+out
+add
+push 40
+multipl
