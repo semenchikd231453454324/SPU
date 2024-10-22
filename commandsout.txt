@@ -1,0 +1,13 @@
+push 70
+push 3
+push 30
+push 2
+push 30
+push 40
+push 
+pop
+dump
+push 40
+multipl
+dump
+hlt

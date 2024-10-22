@@ -1,7 +1,14 @@
-push 70
+push 50
 push 30
-push 2
-out
+dump
 add
+dump
 push 40
-multipl
+subtr
+dump
+push 10
+push 20
+dump
+add
+dump
+hlt
