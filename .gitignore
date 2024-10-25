@@ -2,3 +2,5 @@ Build
 *.txt
 *.exe
 Stack.h
+.gitignore
+.vscode

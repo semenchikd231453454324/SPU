@@ -72,8 +72,6 @@ void Run(SFUStruct* Commands)
         
             Result = StackPop(&Stack) + StackPop(&Stack);
 
-            printf("res = %d\n", Result);
-
             StackPush(&Stack, Result);
 
             ip = ip + 1;
@@ -160,7 +158,7 @@ void Run(SFUStruct* Commands)
             break;
         }
 
-        case Instruction_dump:                                              //dump
+        case Instruction_stkdump:                                              //dump
         {
             DUMP(&Stack);
 
@@ -198,6 +196,8 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
         case Instruction_jae:
@@ -213,6 +213,8 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
         case Instruction_jb:
@@ -228,6 +230,8 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
         case Instruction_jbe:
@@ -243,6 +247,8 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
         case Instruction_je:
@@ -258,6 +264,8 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
         case Instruction_jne:
@@ -273,20 +281,38 @@ void Run(SFUStruct* Commands)
             {
                 ip = ip + 2;
             }
+
+            break;
         }
 
-        case Instruction_pushR:
+        case Instruction_sfudump:
         {
-            Commands->registers[Commands->code[ip + 1]] = StackPop(&Stack);
+            printf("\n\n\n SFUDUMP\n");
 
-            ip = ip + 2;
+            printf("Codesize = %d\n", Commands->codeSize);
+
+            for(size_t CodeElemNum = 0; CodeElemNum < Commands->codeSize; CodeElemNum++)
+            {
+                printf("code[%d] = %d\n", CodeElemNum, Commands->code[CodeElemNum]);
+            }
+
+            printf("Current ip = %d\n", ip);
+
+            ip = ip + 1;
+
+            break;
         }
 
-        case Instruction_popR:
+        case Instruction_lbldump:
         {
-            StackPush(&Stack, Commands->registers[Commands->code[ip + 1]]);
-
-            ip = ip + 2;
+            for (int i = 0; i < LabelsQuantity; i++)
+            {
+                printf("Label[%d]: Labelname: %s LabelIP: %d\n", i, Commands->Labels[i].CurrentLabelName, Commands->Labels[i].LabelIp);
+            }
+            
+            ip = ip + 1;
+            
+            break;
         }
 
         default:

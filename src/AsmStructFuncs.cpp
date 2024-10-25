@@ -7,9 +7,9 @@
 
 #define TEXT_NAME "commands.txt"
 #include "Assembler.h"
-#include "LineCounterFunc.h"
+#include "AsmStructFuncs.h"
 
-int LineCounterFunc(AsmStruct* TextData)
+int AsmStructCtor(AsmStruct* TextData)
 {
     assert(TextData);
 
@@ -76,3 +76,14 @@ int LineCounterFunc(AsmStruct* TextData)
     return 0;  //FIXME
 }
 
+int AsmStructDtor(AsmStruct* TextData)
+{
+    assert(TextData);
+
+    free(TextData->CommandsTextBuffer);
+    free(TextData->CommandsLinePointers);
+
+    TextData = {};
+
+    return 0;
+}

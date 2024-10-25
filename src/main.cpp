@@ -16,10 +16,6 @@ int main()
 
     Assembler(&Commands, &TextStruct);
 
-    for(size_t i = 0; i < 30; i++)
-    {
-        printf("code[%d] = %d\n", i, Commands.code[i]);
-    }
     // StackStruct Stack = {};
     // StackCtor(&Stack);
 
@@ -36,5 +32,7 @@ int main()
     // DUMP(&Stack);
     Run(&Commands);
 
+    disAssembler(&Commands, &TextStruct);
+
 }
-//TODO labels  dump 
+//TODO labels, separate 3, 

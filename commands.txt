@@ -1,14 +1,11 @@
-push 50
-push 30
-dump
-add
-dump
-push 40
-subtr
-dump
-push 10
 push 20
-dump
-add
-dump
+push 40
+push 60
+push 30
+push 30     
+out
+sfudump
+Next:
+lbldump
+ja Next
 hlt

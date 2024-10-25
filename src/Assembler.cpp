@@ -7,15 +7,18 @@
 
 #include "SFUStruct.h"
 #include "Assembler.h"
-#include "LineCounterFunc.h"
+#include "AsmStructFuncs.h"
+#include "../include/SFUStructFuncs.h"
+
 
 #define TEXT_NAME "commands.txt"
-#define ConstCommandsSize 30
 
 int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
 {
     assert(Commands);
     assert(TextStruct);
+
+    #define NumSearch strchr(TextStruct->CommandsLinePointers[LineNum], '0') || strchr(TextStruct->CommandsLinePointers[LineNum], '1') || strchr(TextStruct->CommandsLinePointers[LineNum], '2') || strchr(TextStruct->CommandsLinePointers[LineNum], '3') || strchr(TextStruct->CommandsLinePointers[LineNum], '4') || strchr(TextStruct->CommandsLinePointers[LineNum], '5') || strchr(TextStruct->CommandsLinePointers[LineNum], '6') || strchr(TextStruct->CommandsLinePointers[LineNum], '7') || strchr(TextStruct->CommandsLinePointers[LineNum], '8') || strchr(TextStruct->CommandsLinePointers[LineNum], '9')
 
     #define OneCellCommand(commandname, commandEnum)            \
     if(!strcmp(CurrentCommand, commandname))                    \
@@ -26,17 +29,34 @@ int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
         }                                                       \
 
 
-    #define TwoCellCommand(commandname, commandEnum)                                                            \
+    #define JumpCommand(commandname, commandEnum)                                                               \
     if(!strcmp(CurrentCommand, commandname))                                                                    \
         {                                                                                                       \
             Commands->code[Commands->codeSize] = commandEnum;                                                   \
                                                                                                                 \
-            int ValueForCommand = 0;                                                                            \
-            sscanf(TextStruct->CommandsLinePointers[LineNum] + strlen(commandname),"%s", CurrentCommand);       \
+            if (NumSearch)                                                                                      \
+            {                                                                                                   \
+                int ValueForCommand = 0;                                                                        \
+                sscanf(TextStruct->CommandsLinePointers[LineNum] + strlen(commandname),"%s", CurrentCommand);   \
                                                                                                                 \
-            ValueForCommand = atoi(CurrentCommand);                                                             \
+                ValueForCommand = atoi(CurrentCommand);                                                         \
                                                                                                                 \
-            Commands->code[Commands->codeSize + 1] = ValueForCommand;                                           \
+                Commands->code[Commands->codeSize + 1] = ValueForCommand;                                       \
+            }                                                                                                   \
+            else                                                                                                \
+            {                                                                                                   \
+                sscanf(TextStruct->CommandsLinePointers[LineNum] + strlen(commandname),"%s", CurrentCommand);   \
+                                                                                                                \
+                for (int i = 0; i < Commands->CurrentLabelsQuantity; i++)                                       \
+                {                                                                                               \
+                    if (!strcmp(Commands->Labels[i].CurrentLabelName, CurrentCommand))                          \
+                    {                                                                                           \
+                        Commands->code[Commands->codeSize + 1] = Commands->Labels[i].LabelIp;                   \
+                                                                                                                \
+                        i = Commands->CurrentLabelsQuantity;                                                    \
+                    }                                                                                           \
+                }                                                                                               \
+            }                                                                                                   \
                                                                                                                 \
             Commands->codeSize = Commands->codeSize + 2;                                                        \
         }
@@ -49,7 +69,7 @@ int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
         return 1;
     }
 
-    LineCounterFunc(TextStruct);          //FIXME
+    AsmStructCtor(TextStruct);
 
     //printf("%d", TextStruct->TextSize);
 
@@ -58,9 +78,7 @@ int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
     //     printf("%c", TextStruct->CommandsTextBuffer[i]);
     // }
 
-    
-    Commands->code = (int*) calloc(ConstCommandsSize, sizeof(int));         //TODO заменить количество константное на нормальное
-    Commands->registers = (int*) calloc(RegisterQuantity, sizeof(int));
+    SFUStructCtor(Commands);
 
     char CurrentCommand [20] = {};
 
@@ -94,17 +112,44 @@ int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
         else OneCellCommand("SQRT", Instruction_SQRT)
         else OneCellCommand("SIN", Instruction_SIN)
         else OneCellCommand("COS", Instruction_COS)
-        else OneCellCommand("dump", Instruction_dump)
+        else OneCellCommand("stkdump", Instruction_stkdump)
+        else OneCellCommand("sfudump", Instruction_sfudump)
+        else OneCellCommand("lbldump", Instruction_lbldump)
         else OneCellCommand("hlt", Instruction_hlt)
-        else TwoCellCommand("jmp", Instruction_jmp)
-        else TwoCellCommand("ja", Instruction_ja)
-        else TwoCellCommand("jae", Instruction_jae)
-        else TwoCellCommand("jb", Instruction_jb)
-        else TwoCellCommand("jbe", Instruction_jbe)
-        else TwoCellCommand("je", Instruction_je)
-        else TwoCellCommand("jne", Instruction_jne)
-        else TwoCellCommand("pushR", Instruction_pushR)
-        else TwoCellCommand("popR", Instruction_popR)
+        else JumpCommand("jmp", Instruction_jmp)
+        else JumpCommand("ja", Instruction_ja)
+        else JumpCommand("jae", Instruction_jae)
+        else JumpCommand("jb", Instruction_jb)
+        else JumpCommand("jbe", Instruction_jbe)
+        else JumpCommand("je", Instruction_je)
+        else JumpCommand("jne", Instruction_jne)
+        else if(strchr(CurrentCommand, ':'))
+        {
+            int i = 0;                                      //TODO массив структур что и как???
+
+            char TemporraryBuf [15] ={};
+
+            while (CurrentCommand[i] != ':')
+            {
+                TemporraryBuf[i] = CurrentCommand[i];
+
+                i++;
+            }
+            
+            i++;
+
+            TemporraryBuf[i] = '\0';
+
+            (Commands->Labels[Commands->CurrentLabelsQuantity]).LabelIp = Commands->codeSize;     //эээ сомнительно
+
+            for(int j = 0; j < i; j++)
+            {
+                (Commands->Labels[Commands->CurrentLabelsQuantity]).CurrentLabelName[j] = TemporraryBuf[j];             //TODO норм ли?
+            }
+         
+            Commands->CurrentLabelsQuantity++;
+        }
+
 
         else
         {
@@ -115,16 +160,18 @@ int Assembler(SFUStruct* Commands, AsmStruct* TextStruct)
         
     }   
 
+    FILE* Binary = fopen("Binary.hui", "wb");
+
+    fwrite(Commands->code, sizeof(int), Commands->codeSize, Binary);
+
+    fclose(Binary);
     fclose(CommmandsText);
 
     #undef OneCellCommand
-    #undef TwoCellCommand
+    #undef JumpCommand
 
     return 0;
 }
-
-
-                                                                //huihui
 
 int disAssembler(SFUStruct* Commands, AsmStruct* TextStruct)
 {
@@ -148,7 +195,7 @@ int disAssembler(SFUStruct* Commands, AsmStruct* TextStruct)
         break;                                                              \
     }
 
-    #define TwoCellCommandOut(commandEnum, commandname)                         \
+    #define JumpCommandOut(commandEnum, commandname)                            \
     case commandEnum:                                                           \
     {                                                                           \
         fprintf(CommmandsTextout, commandname " %d\n", Commands->code[ip + 1]); \
@@ -160,7 +207,7 @@ int disAssembler(SFUStruct* Commands, AsmStruct* TextStruct)
 
     size_t ip = 0;
 
-    for(size_t LineNum = 0; LineNum < TextStruct->LinesCounter; LineNum++)
+    for(size_t LineNum = 0; LineNum < (TextStruct->LinesCounter - Commands->CurrentLabelsQuantity); LineNum++)
     {
         switch (Commands->code[ip])
         {
@@ -182,19 +229,17 @@ int disAssembler(SFUStruct* Commands, AsmStruct* TextStruct)
             OneCellCommandOut(Instruction_SQRT, "SQRT")
             OneCellCommandOut(Instruction_SIN, "SIN")
             OneCellCommandOut(Instruction_COS, "COS")
-            OneCellCommandOut(Instruction_dump, "dump")
+            OneCellCommandOut(Instruction_stkdump, "stkdump")
+            OneCellCommandOut(Instruction_sfudump, "sfudump")
+            OneCellCommandOut(Instruction_lbldump, "lbldump")
             OneCellCommandOut(Instruction_hlt, "hlt")
-            TwoCellCommandOut(Instruction_jmp, "jmp")
-            TwoCellCommandOut(Instruction_ja, "ja")
-            TwoCellCommandOut(Instruction_jae, "jae")
-            TwoCellCommandOut(Instruction_jb, "jb")
-            TwoCellCommandOut(Instruction_jbe, "jbe")
-            TwoCellCommandOut(Instruction_je, "je")
-            TwoCellCommandOut(Instruction_jne, "jne")
-            TwoCellCommandOut(Instruction_pushR, "pushR")
-            TwoCellCommandOut(Instruction_popR, "popR")
-
-
+            JumpCommandOut(Instruction_jmp, "jmp")
+            JumpCommandOut(Instruction_ja, "ja")
+            JumpCommandOut(Instruction_jae, "jae")
+            JumpCommandOut(Instruction_jb, "jb")
+            JumpCommandOut(Instruction_jbe, "jbe")
+            JumpCommandOut(Instruction_je, "je")
+            JumpCommandOut(Instruction_jne, "jne")
 
             default:
             {
@@ -208,7 +253,9 @@ int disAssembler(SFUStruct* Commands, AsmStruct* TextStruct)
     }
 
     #undef OneCellCommandOut
-    #undef TwoCellCommandOut
+    #undef JumpCommandOut
+
+    AsmStructDtor(TextStruct);
 
     return 0;
 }

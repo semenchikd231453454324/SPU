@@ -6,13 +6,15 @@ build_dir=Build
 src_prefix=src/
 build_prefix=Build/
 
+
+
 LIB= -L Stack/StackLibrary -lStackFuncs
 #PATH=C:/Windows/System32/cmd.exe
 #putsubstr
 #variab
 
-HUI = $(addprefix ${src_prefix}, main.cpp LineCounterFunc.cpp Assembler.cpp Run.cpp)
-OBJ = $(addprefix ${build_prefix}, main.o LineCounterFunc.o Assembler.o Run.o)
+HUI = $(addprefix ${src_prefix}, main.cpp AsmStructFuncs.cpp Assembler.cpp Run.cpp SFUStructFuncs.cpp)
+OBJ = $(addprefix ${build_prefix}, main.o AsmStructFuncs.o Assembler.o Run.o SFUStructFuncs.o)
 
 all : prepare $(EXE_NAME) 
 

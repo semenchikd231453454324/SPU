@@ -1,13 +1,10 @@
-push 70
-push 3
-push 30
-push 2
-push 30
+push 20
 push 40
-push 
-pop
-dump
-push 40
-multipl
-dump
+push 60
+push 30
+push 30
+out
+sfudump
+lbldump
+ja 12
 hlt
